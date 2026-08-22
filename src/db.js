@@ -11,9 +11,11 @@ const adapter = new FileSync(path.join(__dirname, "..", "data.json"));
 const db = low(adapter);
 
 db.defaults({
-  users: [],       // { id, telegramChatId, plan, razorpaySubId, createdAt }
-  signals: [],      // generated signals (real, from live data)
-  prices: {},       // latest known price per symbol
+  users: [],        // { id, telegramChatId, plan, createdAt }
+  signals: [],       // generated signals (real, from live data)
+  prices: {},        // latest known price per symbol
+  cryptoOrders: [],  // pending/paid/expired crypto payment orders
+  processedTx: [],   // blockchain tx ids already matched, to prevent double-credit
 }).write();
 
 function upsertUser({ id, telegramChatId, plan }) {
@@ -57,7 +59,6 @@ function allUsers() {
 
 function addSignal(signal) {
   db.get("signals").push(signal).write();
-  // keep last 500 signals so the file doesn't grow forever
   const all = db.get("signals").value();
   if (all.length > 500) {
     db.set("signals", all.slice(all.length - 500)).write();
@@ -79,6 +80,50 @@ function getPrice(symbol) {
   return db.get(`prices.${symbol.replace(/\//g, "_")}`).value();
 }
 
+// ---- Crypto payment orders ----
+
+function addCryptoOrder(order) {
+  db.get("cryptoOrders").push(order).write();
+  return order;
+}
+
+function getCryptoOrder(id) {
+  return db.get("cryptoOrders").find({ id }).value();
+}
+
+function getPendingCryptoOrders() {
+  return db.get("cryptoOrders").filter({ status: "pending" }).value();
+}
+
+function markCryptoOrderPaid(id, txid) {
+  return db
+    .get("cryptoOrders")
+    .find({ id })
+    .assign({ status: "paid", txid, paidAt: Date.now() })
+    .write();
+}
+
+function expireOldCryptoOrders() {
+  const now = Date.now();
+  db.get("cryptoOrders")
+    .filter((o) => o.status === "pending" && now > o.expiresAt)
+    .forEach((o) => {
+      db.get("cryptoOrders").find({ id: o.id }).assign({ status: "expired" }).write();
+    })
+    .value();
+}
+
+function isTxProcessed(txid) {
+  return db.get("processedTx").includes(txid).value();
+}
+
+function markTxProcessed(txid) {
+  const arr = db.get("processedTx").value();
+  arr.push(txid);
+  if (arr.length > 1000) arr.shift();
+  db.set("processedTx", arr).write();
+}
+
 module.exports = {
   upsertUser,
   getUser,
@@ -89,4 +134,11 @@ module.exports = {
   recentSignals,
   setPrice,
   getPrice,
+  addCryptoOrder,
+  getCryptoOrder,
+  getPendingCryptoOrders,
+  markCryptoOrderPaid,
+  expireOldCryptoOrders,
+  isTxProcessed,
+  markTxProcessed,
 };
