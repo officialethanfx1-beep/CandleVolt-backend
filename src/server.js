@@ -6,11 +6,14 @@ const binanceFeed = require("./services/binanceFeed");
 const forexFeed = require("./services/forexFeed");
 const telegramBot = require("./services/telegramBot");
 const cryptoPayments = require("./services/cryptoPayments");
+const newsFeed = require("./services/newsFeed");
 
 const signalsRoute = require("./routes/signals");
 const pricesRoute = require("./routes/prices");
 const subscribeRoute = require("./routes/subscribe");
 const webhooksRoute = require("./routes/webhooks");
+const candlesRoute = require("./routes/candles");
+const newsRoute = require("./routes/news");
 
 const app = express();
 
@@ -23,6 +26,8 @@ app.use(express.json());
 app.use("/api/signals", signalsRoute);
 app.use("/api/prices", pricesRoute);
 app.use("/api/subscribe", subscribeRoute);
+app.use("/api/candles", candlesRoute);
+app.use("/api/news", newsRoute);
 
 app.get("/health", (req, res) => res.json({ status: "ok", ts: Date.now() }));
 
@@ -33,4 +38,5 @@ app.listen(config.port, () => {
   forexFeed.start();
   telegramBot.start();
   cryptoPayments.start();
+  newsFeed.start();
 });
