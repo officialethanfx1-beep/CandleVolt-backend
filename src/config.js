@@ -5,9 +5,14 @@ module.exports = {
   freeDelayMin: parseInt(process.env.FREE_DELAY_MS_MIN || "120000", 10),
   freeDelayMax: parseInt(process.env.FREE_DELAY_MS_MAX || "180000", 10),
 
-  // Signal strategy tuning
-  signalCooldownMs: parseInt(process.env.SIGNAL_COOLDOWN_MS || "1200000", 10), // 20 min default
-  riskRewardRatio: parseFloat(process.env.RISK_REWARD_RATIO || "2"), // 1:2 default — set to 3 for 1:3
+  signalCooldownMs: parseInt(process.env.SIGNAL_COOLDOWN_MS || "1200000", 10),
+  riskRewardRatio: parseFloat(process.env.RISK_REWARD_RATIO || "2"),
+
+  adminChatId: process.env.ADMIN_TELEGRAM_ID ? parseInt(process.env.ADMIN_TELEGRAM_ID, 10) : null,
+
+  // Your real USDT-TRC20 wallet — payments are watched here automatically
+  cryptoWalletTrc20: process.env.CRYPTO_WALLET_TRC20 || "TWmkkjRiXnwb9yBF9wbKBP6AvbpqdQPeRJ",
+  usdtInrRate: parseFloat(process.env.USDT_INR_RATE || "87"),
 
   twelveDataKey: process.env.TWELVE_DATA_API_KEY,
 
