@@ -11,11 +11,12 @@ const adapter = new FileSync(path.join(__dirname, "..", "data.json"));
 const db = low(adapter);
 
 db.defaults({
-  users: [],        // { id, telegramChatId, plan, createdAt }
-  signals: [],       // generated signals (real, from live data)
-  prices: {},        // latest known price per symbol
-  cryptoOrders: [],  // pending/paid/expired crypto payment orders
-  processedTx: [],   // blockchain tx ids already matched, to prevent double-credit
+  users: [],
+  signals: [],
+  prices: {},
+  cryptoOrders: [],
+  processedTx: [],
+  news: [],
 }).write();
 
 function upsertUser({ id, telegramChatId, plan }) {
@@ -124,6 +125,24 @@ function markTxProcessed(txid) {
   db.set("processedTx", arr).write();
 }
 
+// ---- News ----
+
+function upsertNewsItems(items) {
+  const existingIds = new Set(db.get("news").map((n) => n.id).value());
+  const fresh = items.filter((i) => i.id && !existingIds.has(i.id));
+  if (fresh.length === 0) return;
+  const all = [...db.get("news").value(), ...fresh]
+    .sort((a, b) => b.publishedAt - a.publishedAt)
+    .slice(0, 150);
+  db.set("news", all).write();
+}
+
+function getNews(category, limit = 30) {
+  let items = db.get("news").value();
+  if (category) items = items.filter((n) => n.category === category);
+  return items.slice(0, limit);
+}
+
 module.exports = {
   upsertUser,
   getUser,
@@ -141,4 +160,6 @@ module.exports = {
   expireOldCryptoOrders,
   isTxProcessed,
   markTxProcessed,
+  upsertNewsItems,
+  getNews,
 };
