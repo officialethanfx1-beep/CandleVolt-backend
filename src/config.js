@@ -5,6 +5,10 @@ module.exports = {
   freeDelayMin: parseInt(process.env.FREE_DELAY_MS_MIN || "120000", 10),
   freeDelayMax: parseInt(process.env.FREE_DELAY_MS_MAX || "180000", 10),
 
+  // Signal strategy tuning
+  signalCooldownMs: parseInt(process.env.SIGNAL_COOLDOWN_MS || "1200000", 10), // 20 min default
+  riskRewardRatio: parseFloat(process.env.RISK_REWARD_RATIO || "2"), // 1:2 default — set to 3 for 1:3
+
   twelveDataKey: process.env.TWELVE_DATA_API_KEY,
 
   telegramToken: process.env.TELEGRAM_BOT_TOKEN,
@@ -20,7 +24,6 @@ module.exports = {
     Elite: { amount: parseInt(process.env.PLAN_ELITE_AMOUNT || "249900", 10), label: "Elite" },
   },
 
-  // symbol universe — mirrors the frontend
   assets: {
     crypto: [
       { symbol: "BTC/USDT", binance: "btcusdt" },
