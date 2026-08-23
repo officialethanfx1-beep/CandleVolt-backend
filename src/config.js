@@ -10,9 +10,12 @@ module.exports = {
 
   adminChatId: process.env.ADMIN_TELEGRAM_ID ? parseInt(process.env.ADMIN_TELEGRAM_ID, 10) : null,
 
-  // Your real USDT-TRC20 wallet — payments are watched here automatically
   cryptoWalletTrc20: process.env.CRYPTO_WALLET_TRC20 || "TWmkkjRiXnwb9yBF9wbKBP6AvbpqdQPeRJ",
   usdtInrRate: parseFloat(process.env.USDT_INR_RATE || "87"),
+
+  // Secret used to sign login sessions — set your own random string in
+  // Render's environment variables before going live with real users.
+  jwtSecret: process.env.JWT_SECRET || "dev-insecure-secret-change-me",
 
   twelveDataKey: process.env.TWELVE_DATA_API_KEY,
 
