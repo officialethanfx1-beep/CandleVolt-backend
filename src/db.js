@@ -58,6 +58,25 @@ function allUsers() {
   return db.get("users").value();
 }
 
+// ---- Accounts (email/password login) ----
+
+function getUserByEmail(email) {
+  return db.get("users").find({ email: email.toLowerCase() }).value();
+}
+
+function createAccount({ id, email, passwordHash }) {
+  const user = {
+    id,
+    email: email.toLowerCase(),
+    passwordHash,
+    telegramChatId: null,
+    plan: "Free",
+    createdAt: Date.now(),
+  };
+  db.get("users").push(user).write();
+  return user;
+}
+
 function addSignal(signal) {
   db.get("signals").push(signal).write();
   const all = db.get("signals").value();
@@ -149,6 +168,8 @@ module.exports = {
   getUserByTelegramChat,
   setUserPlan,
   allUsers,
+  getUserByEmail,
+  createAccount,
   addSignal,
   recentSignals,
   setPrice,
