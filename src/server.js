@@ -7,6 +7,7 @@ const forexFeed = require("./services/forexFeed");
 const telegramBot = require("./services/telegramBot");
 const cryptoPayments = require("./services/cryptoPayments");
 const newsFeed = require("./services/newsFeed");
+const calendarFeed = require("./services/calendarFeed");
 
 const signalsRoute = require("./routes/signals");
 const pricesRoute = require("./routes/prices");
@@ -15,6 +16,7 @@ const webhooksRoute = require("./routes/webhooks");
 const candlesRoute = require("./routes/candles");
 const newsRoute = require("./routes/news");
 const authRoute = require("./routes/auth");
+const calendarRoute = require("./routes/calendar");
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use("/api/subscribe", subscribeRoute);
 app.use("/api/candles", candlesRoute);
 app.use("/api/news", newsRoute);
 app.use("/api/auth", authRoute);
+app.use("/api/calendar", calendarRoute);
 
 app.get("/health", (req, res) => res.json({ status: "ok", ts: Date.now() }));
 
@@ -41,4 +44,5 @@ app.listen(config.port, () => {
   telegramBot.start();
   cryptoPayments.start();
   newsFeed.start();
+  calendarFeed.start();
 });
