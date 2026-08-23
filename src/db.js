@@ -1,8 +1,4 @@
 // Lightweight JSON-file DB for the MVP.
-// Fine for a few thousand users; once you have real scale, swap this for
-// Postgres (Prisma/Knex) or MongoDB — the function signatures below are
-// written so that swap doesn't touch the rest of the codebase.
-
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const path = require("path");
@@ -17,6 +13,7 @@ db.defaults({
   cryptoOrders: [],
   processedTx: [],
   news: [],
+  calendarEvents: [],
 }).write();
 
 function upsertUser({ id, telegramChatId, plan }) {
@@ -58,8 +55,6 @@ function allUsers() {
   return db.get("users").value();
 }
 
-// ---- Accounts (email/password login) ----
-
 function getUserByEmail(email) {
   return db.get("users").find({ email: email.toLowerCase() }).value();
 }
@@ -99,8 +94,6 @@ function setPrice(symbol, price) {
 function getPrice(symbol) {
   return db.get(`prices.${symbol.replace(/\//g, "_")}`).value();
 }
-
-// ---- Crypto payment orders ----
 
 function addCryptoOrder(order) {
   db.get("cryptoOrders").push(order).write();
@@ -144,8 +137,6 @@ function markTxProcessed(txid) {
   db.set("processedTx", arr).write();
 }
 
-// ---- News ----
-
 function upsertNewsItems(items) {
   const existingIds = new Set(db.get("news").map((n) => n.id).value());
   const fresh = items.filter((i) => i.id && !existingIds.has(i.id));
@@ -160,6 +151,16 @@ function getNews(category, limit = 30) {
   let items = db.get("news").value();
   if (category) items = items.filter((n) => n.category === category);
   return items.slice(0, limit);
+}
+
+function setCalendarEvents(events) {
+  db.set("calendarEvents", events).write();
+}
+
+function getCalendarEvents(impact) {
+  let events = db.get("calendarEvents").value();
+  if (impact) events = events.filter((e) => e.impact === impact);
+  return events;
 }
 
 module.exports = {
@@ -183,4 +184,6 @@ module.exports = {
   markTxProcessed,
   upsertNewsItems,
   getNews,
+  setCalendarEvents,
+  getCalendarEvents,
 };
