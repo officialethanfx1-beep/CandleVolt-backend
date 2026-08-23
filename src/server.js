@@ -14,6 +14,7 @@ const subscribeRoute = require("./routes/subscribe");
 const webhooksRoute = require("./routes/webhooks");
 const candlesRoute = require("./routes/candles");
 const newsRoute = require("./routes/news");
+const authRoute = require("./routes/auth");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/prices", pricesRoute);
 app.use("/api/subscribe", subscribeRoute);
 app.use("/api/candles", candlesRoute);
 app.use("/api/news", newsRoute);
+app.use("/api/auth", authRoute);
 
 app.get("/health", (req, res) => res.json({ status: "ok", ts: Date.now() }));
 
