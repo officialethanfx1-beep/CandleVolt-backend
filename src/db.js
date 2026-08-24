@@ -14,6 +14,7 @@ db.defaults({
   processedTx: [],
   news: [],
   calendarEvents: [],
+  analysis: null,
 }).write();
 
 function upsertUser({ id, telegramChatId, plan }) {
@@ -163,6 +164,14 @@ function getCalendarEvents(impact) {
   return events;
 }
 
+function setAnalysis(analysis) {
+  db.set("analysis", analysis).write();
+}
+
+function getAnalysis() {
+  return db.get("analysis").value();
+}
+
 module.exports = {
   upsertUser,
   getUser,
@@ -186,4 +195,6 @@ module.exports = {
   getNews,
   setCalendarEvents,
   getCalendarEvents,
+  setAnalysis,
+  getAnalysis,
 };
