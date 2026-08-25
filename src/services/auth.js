@@ -1,14 +1,5 @@
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../config");
-
-async function hashPassword(password) {
-  return bcrypt.hash(password, 10);
-}
-
-async function verifyPassword(password, hash) {
-  return bcrypt.compare(password, hash);
-}
 
 function signToken(userId) {
   return jwt.sign({ userId }, config.jwtSecret, { expiresIn: "30d" });
@@ -22,4 +13,8 @@ function verifyToken(token) {
   }
 }
 
-module.exports = { hashPassword, verifyPassword, signToken, verifyToken };
+function generateOtp() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+module.exports = { signToken, verifyToken, generateOtp };
