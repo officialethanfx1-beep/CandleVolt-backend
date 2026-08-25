@@ -16,6 +16,7 @@ module.exports = {
   jwtSecret: process.env.JWT_SECRET || "dev-insecure-secret-change-me",
 
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  resendApiKey: process.env.RESEND_API_KEY,
 
   twelveDataKey: process.env.TWELVE_DATA_API_KEY,
 
