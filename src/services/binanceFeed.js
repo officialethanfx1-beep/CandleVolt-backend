@@ -1,7 +1,6 @@
 const WebSocket = require("ws");
 const config = require("../config");
 const { ingestPrice } = require("./signalEngine");
-const candleStore = require("./candleStore");
 const db = require("../db");
 
 const BINANCE_WS_BASE = "wss://stream.binance.com:9443/stream?streams=";
@@ -9,7 +8,7 @@ const BINANCE_WS_BASE = "wss://stream.binance.com:9443/stream?streams=";
 function symbolLookup() {
   const map = {};
   [...config.assets.crypto, ...config.assets.meme].forEach((a) => {
-    map[a.binance] = a.symbol; // "btcusdt" -> "BTC/USDT"
+    map[a.binance] = a.symbol;
   });
   return map;
 }
@@ -40,22 +39,10 @@ function start() {
         if (!binanceSym || !k || !lookup[binanceSym]) return;
 
         const symbol = lookup[binanceSym];
-
-        // Always keep the live displayed price fresh, every tick.
         db.setPrice(symbol, parseFloat(k.c));
 
-        // Only feed the signal engine + candle store a CLOSED candle
-        // (k.x === true) — using every partial tick was firing too many
-        // noisy signals with razor-thin targets/stops.
         if (k.x === true) {
           ingestPrice(symbol, parseFloat(k.c));
-          candleStore.addCandle(symbol, {
-            t: Math.floor(k.t / 1000), // candle open time, seconds (for chart libs)
-            o: parseFloat(k.o),
-            h: parseFloat(k.h),
-            l: parseFloat(k.l),
-            c: parseFloat(k.c),
-          });
         }
       } catch (e) {
         console.error("[binanceFeed] parse error:", e.message);
