@@ -15,6 +15,7 @@ db.defaults({
   news: [],
   calendarEvents: [],
   analysis: null,
+  otps: {},
 }).write();
 
 function upsertUser({ id, telegramChatId, plan }) {
@@ -33,6 +34,7 @@ function upsertUser({ id, telegramChatId, plan }) {
         id,
         telegramChatId: telegramChatId || null,
         plan: plan || "Free",
+        profile: {},
         createdAt: Date.now(),
       })
       .write();
@@ -60,17 +62,30 @@ function getUserByEmail(email) {
   return db.get("users").find({ email: email.toLowerCase() }).value();
 }
 
-function createAccount({ id, email, passwordHash }) {
+function createAccount({ id, email }) {
   const user = {
     id,
     email: email.toLowerCase(),
-    passwordHash,
     telegramChatId: null,
     plan: "Free",
+    profile: {},
     createdAt: Date.now(),
   };
   db.get("users").push(user).write();
   return user;
+}
+
+function updateProfile(id, fields) {
+  const user = db.get("users").find({ id }).value();
+  if (!user) return null;
+  const allowed = ["username", "firstName", "lastName", "country", "bio", "avatar"];
+  const clean = {};
+  allowed.forEach((k) => {
+    if (fields[k] !== undefined) clean[k] = fields[k];
+  });
+  const nextProfile = { ...(user.profile || {}), ...clean };
+  db.get("users").find({ id }).assign({ profile: nextProfile }).write();
+  return nextProfile;
 }
 
 function addSignal(signal) {
@@ -172,6 +187,18 @@ function getAnalysis() {
   return db.get("analysis").value();
 }
 
+function setOtp(email, code, expiresAt) {
+  db.set(`otps.${email.toLowerCase()}`, { code, expiresAt }).write();
+}
+
+function getOtp(email) {
+  return db.get(`otps.${email.toLowerCase()}`).value();
+}
+
+function clearOtp(email) {
+  db.unset(`otps.${email.toLowerCase()}`).write();
+}
+
 module.exports = {
   upsertUser,
   getUser,
@@ -180,6 +207,7 @@ module.exports = {
   allUsers,
   getUserByEmail,
   createAccount,
+  updateProfile,
   addSignal,
   recentSignals,
   setPrice,
@@ -197,4 +225,7 @@ module.exports = {
   getCalendarEvents,
   setAnalysis,
   getAnalysis,
+  setOtp,
+  getOtp,
+  clearOtp,
 };
