@@ -21,7 +21,7 @@ function binanceSymbolFor(symbol) {
 }
 
 const cache = new Map();
-const CACHE_MS = 4000;
+const CACHE_MS = 15000;
 
 router.get("/", async (req, res) => {
   const { symbol, interval = "1m", limit = 200 } = req.query;
@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
   }
 
   try {
-    const resp = await axios.get("https://api.binance.com/api/v3/klines", {
+    const resp = await axios.get("https://data-api.binance.com/api/v3/klines", {
       params: { symbol: binSymbol, interval: binInterval, limit },
       timeout: 10000,
     });
