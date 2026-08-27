@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
   }
 
   try {
-    const resp = await axios.get("https://data-api.binance.com/api/v3/klines", {
+    const resp = await axios.get("https://data-api.binance.vision/api/v3/klines", {
       params: { symbol: binSymbol, interval: binInterval, limit },
       timeout: 10000,
     });
