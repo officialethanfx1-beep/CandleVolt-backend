@@ -10,8 +10,7 @@ const FEEDS = [
   { url: "https://www.coindesk.com/arc/outboundfeeds/rss/", source: "CoinDesk", category: "crypto" },
   { url: "https://cointelegraph.com/rss", source: "Cointelegraph", category: "crypto" },
   { url: "https://www.investing.com/rss/news_301.rss", source: "Investing.com", category: "forex" },
-  { url: "https://www.fxstreet.com/rss/news", source: "FXStreet", category: "forex" },
-];
+
 
 async function pollFeed(feed) {
   try {
